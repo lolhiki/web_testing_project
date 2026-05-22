@@ -23,7 +23,7 @@ from common.logger import setup_logger
 
 
 @pytest.fixture(scope="function")
-def page():
+def page(request):
     """
     Фикстура Playwright — создаёт новую страницу для каждого теста
     
@@ -47,6 +47,9 @@ def page():
         # Создаём контекст и страницу
         context = browser.new_context()
         page = context.new_page()
+        
+        # 🔥 Сохраняем логгер в атрибут page
+        page.logger = setup_logger(request.node.name)
         
         # Передаём страницу в тест
         yield page

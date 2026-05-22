@@ -1,3 +1,20 @@
+"""
+  ШАБЛОН UI ТЕСТА
+====================================
+
+  Как использовать:
+   1. Скопируй этот файл в tests/ui/test_xxx.py
+   2. Переименуй класс TestUITemplate в TestЧтоTesting
+   3. Переименуй функцию test_example в test_что_тестируем
+   4. Добавь шаги через self.ui.метод()
+
+  Что можно копировать в тест (из common/ui_steps.py):
+   self.ui.go_to_url(Urls.LOGIN_PAGE)
+   self.ui.click(Locators.BUTTON)
+   self.ui.fill(Locators.INPUT, "text")
+   self.ui.check_text(Locators.TEXT, "expected")
+"""
+
 import sys
 import os
 
@@ -12,12 +29,17 @@ from config.urls import Urls
 class TestUITemplate:
     
     @pytest.fixture(autouse=True)
-    def setup(self, page):
+    def setup(self, page, request):
         """
         Настройка перед каждым тестом
         Создаёт экземпляр UI шагов (аналог подключения к CAN)
         """
-        self.ui = UISteps(page)
+        #   Создаём логгер с именем теста
+        from common.logger import setup_logger
+        self.logger = setup_logger(request.node.name)
+        
+        #   Передаём логгер в UISteps
+        self.ui = UISteps(page, logger=self.logger)
     
     # ============================================================
     # ТВОЙ ТЕСТ НАЧИНАЕТСЯ ЗДЕСЬ
@@ -42,6 +64,7 @@ class TestUITemplate:
         # Шаг 4: TODO — укажи название шага
         # self.ui.check_text(".title", "Products")
         
+        self.logger.info("✅ Тест пройден")
         print("✅ Тест пройден")
     
     # ============================================================

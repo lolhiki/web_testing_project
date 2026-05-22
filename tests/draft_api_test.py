@@ -1,3 +1,20 @@
+"""
+  ШАБЛОН API ТЕСТА
+====================================
+
+  Как использовать:
+   1. Скопируй этот файл в tests/api/test_xxx.py
+   2. Переименуй класс TestAPITemplate в TestЧтоTesting
+   3. Переименуй функцию test_example в test_что_тестируем
+   4. Добавь шаги через self.api.метод()
+
+  Что можно копировать в тест (из common/api_steps.py):
+   response = self.api.get(USER_GET.format(user_id=1))
+   assert response.status_code == 200
+   data = response.json()
+   assert data["id"] == 1
+"""
+
 import sys
 import os
 
@@ -12,12 +29,17 @@ from config.settings import TestSettings
 class TestAPITemplate:
     
     @pytest.fixture(autouse=True)
-    def setup(self):
+    def setup(self, request):
         """
         Настройка перед каждым тестом
         Создаёт экземпляр API шагов (аналог подключения к CAN)
         """
-        self.api = APISteps()
+        #   Создаём логгер с именем теста
+        from common.logger import setup_logger
+        self.logger = setup_logger(request.node.name)
+        
+        #   Передаём логгер в APISteps
+        self.api = APISteps(logger=self.logger)
     
     # ============================================================
     # ТВОЙ ТЕСТ НАЧИНАЕТСЯ ЗДЕСЬ
@@ -38,6 +60,7 @@ class TestAPITemplate:
         # data = response.json()
         # assert data["id"] == 1
         
+        self.logger.info("✅ Тест пройден")
         print("✅ Тест пройден")
     
     # ============================================================

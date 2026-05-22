@@ -24,17 +24,25 @@ from common.api_client import APIClient
 from config.settings import TestSettings
 
 class APISteps:
-    def __init__(self):
+    def __init__(self, logger=None):
         """
         Инициализация API шагов
         
-          Копировать в тест:
+        📋 Копировать в тест:
             self.api = APISteps()
-        
-          Что можно поменять:
-            Ничего — базовый URL берётся из config/settings.py
+            # или с логгером:
+            self.api = APISteps(logger=self.logger)
         """
+        from common.api_client import APIClient
+        from config.settings import TestSettings
+        
         self.client = APIClient(TestSettings.API_BASE_URL)
+        
+        if logger:
+            self.logger = logger
+        else:
+            import logging
+            self.logger = logging.getLogger(__name__)
     
     def get(self, endpoint: str, **kwargs):
         """

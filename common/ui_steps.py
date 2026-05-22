@@ -40,18 +40,20 @@ import logging
 from datetime import datetime
 
 class UISteps:
-    def __init__(self, page):
+    def __init__(self, page, logger=None):
         """
         Инициализация UI шагов
         
           Копировать в тест:
             self.ui = UISteps(page)
-        
-          Что можно поменять:
-            page — объект страницы Playwright (приходит из фикстуры)
+            # или с логгером:
+            self.ui = UISteps(page, logger=self.logger)
         """
         self.page = page
-        self.logger = logging.getLogger(__name__)
+        if logger:
+            self.logger = logger
+        else:
+            self.logger = logging.getLogger(__name__)
     
     # ============================================================
     # 1. НАВИГАЦИЯ
