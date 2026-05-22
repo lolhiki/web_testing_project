@@ -172,12 +172,7 @@ pytest -m smoke -v -s
 | **API** | https://jsonplaceholder.typicode.com | Бесплатное API для тестов |
 | **UI** | https://www.saucedemo.com | Тестовый интернет-магазин |
 
-### Учётные данные для UI:
-
-| Логин | Пароль |
-|-------|--------|
-| `standard_user` | `secret_sauce` |
-| `locked_out_user` | `secret_sauce` |
+> ℹ️ Учётные данные для UI стенда хранятся в `pages/login_page.py` (класс `TestData`)
 
 ---
 
