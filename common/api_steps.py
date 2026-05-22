@@ -1,145 +1,126 @@
 """
 API STEPS — методы для API тестов
-====================================
-
-  Что здесь хранится:
-   - Обёртка над APIClient для удобного использования в тестах
-   - Берёт базовый URL из настроек автоматически
-
-  Как использовать в тестах:
-   from common.api_steps import APISteps
-   
-   self.api = APISteps()
-   response = self.api.get(USER_GET.format(user_id=1))
-   assert response.status_code == 200
-
-  Что можно копировать в тест:
-   response = self.api.get(USER_GET.format(user_id=1))
-   response = self.api.post(USER_CREATE, json=new_user)
-   response = self.api.put(USER_UPDATE.format(user_id=1), json=update_data)
-   response = self.api.delete(USER_DELETE.format(user_id=1))
 """
 
+import logging
 from common.api_client import APIClient
 from config.settings import TestSettings
 
+
 class APISteps:
-    def __init__(self, logger=None):
-        """
-        Инициализация API шагов
-        
-        📋 Копировать в тест:
-            self.api = APISteps()
-            # или с логгером:
-            self.api = APISteps(logger=self.logger)
-        """
-        from common.api_client import APIClient
-        from config.settings import TestSettings
-        
+    def __init__(self, logger):
         self.client = APIClient(TestSettings.API_BASE_URL)
-        
-        if logger:
-            self.logger = logger
-        else:
-            import logging
-            self.logger = logging.getLogger(__name__)
+        self.logger = logger
+    
+    # ============================================================
+    # ОСНОВНЫЕ HTTP МЕТОДЫ
+    # ============================================================
     
     def get(self, endpoint: str, **kwargs):
         """
-        GET запрос — получение данных
+        GET запрос — получить данные
         
           Копировать в тест:
-            from endpoints.user_endpoints import USER_GET
-            
             response = self.api.get(USER_GET.format(user_id=1))
-            assert response.status_code == 200
+            assert response.status_code == 200, f"Ошибка: статус {response.status_code}"
             data = response.json()
+            assert data["id"] == 1, f"Неверный id: {data['id']}"
+            assert "name" in data, "В ответе нет поля name"
+            assert "email" in data, "В ответе нет поля email"
+            self.logger.info(f"✅ Пользователь получен: {data['name']}")
         
-          Что можно поменять:
-            endpoint — путь к ресурсу (берём из папки endpoints/)
+          Источники эндпоинтов:
+            - USER_GET = "/users/{user_id}" (из endpoints/user_endpoints.py)
         """
-        return self.client.get(endpoint, **kwargs)
+        self.logger.info(f"  GET {endpoint}")
+        response = self.client.get(endpoint, **kwargs)
+        self.logger.info(f"  Response status: {response.status_code}")
+        return response
     
-    def post(self, endpoint: str, data: dict = None, json: dict = None, **kwargs):
+    def post(self, endpoint: str, json: dict = None, **kwargs):
         """
-        POST запрос — создание нового ресурса
+        POST запрос — создать ресурс
         
           Копировать в тест:
-            from endpoints.user_endpoints import USER_CREATE
-            
-            new_user = {"name": "Test", "email": "test@mail.com"}
+            new_user = {"name": "Test User", "email": "test@example.com"}
             response = self.api.post(USER_CREATE, json=new_user)
-            assert response.status_code == 201
+            assert response.status_code == 201, f"Ошибка: статус {response.status_code}"
+            data = response.json()
+            assert data["name"] == new_user["name"], "Имя не совпадает"
+            assert data["email"] == new_user["email"], "Email не совпадает"
+            self.logger.info(f"✅ Пользователь создан: {data}")
         
-          Что можно поменять:
-            endpoint — путь к ресурсу (берём из папки endpoints/)
-            json — данные для создания (создаём в тесте)
+          Источники эндпоинтов:
+            - USER_CREATE = "/users" (из endpoints/user_endpoints.py)
         """
-        return self.client.post(endpoint, data=data, json=json, **kwargs)
+        self.logger.info(f"  POST {endpoint}")
+        response = self.client.post(endpoint, json=json, **kwargs)
+        self.logger.info(f"  Response status: {response.status_code}")
+        return response
     
-    def put(self, endpoint: str, **kwargs):
+    def put(self, endpoint: str, json: dict = None, **kwargs):
         """
         PUT запрос — полное обновление ресурса
         
           Копировать в тест:
-            from endpoints.user_endpoints import USER_UPDATE
-            
-            update_data = {"name": "New Name", "email": "new@mail.com"}
+            update_data = {"name": "Updated Name", "email": "updated@example.com"}
             response = self.api.put(USER_UPDATE.format(user_id=1), json=update_data)
-            assert response.status_code == 200
+            assert response.status_code == 200, f"Ошибка: статус {response.status_code}"
+            self.logger.info(f"✅ Пользователь обновлён")
         
-          Что можно поменять:
-            endpoint — путь к ресурсу (берём из папки endpoints/)
+          Источники эндпоинтов:
+            - USER_UPDATE = "/users/{user_id}" (из endpoints/user_endpoints.py)
         """
-        return self.client.put(endpoint, **kwargs)
+        self.logger.info(f"  PUT {endpoint}")
+        response = self.client.put(endpoint, json=json, **kwargs)
+        self.logger.info(f"  Response status: {response.status_code}")
+        return response
     
     def delete(self, endpoint: str, **kwargs):
         """
-        DELETE запрос — удаление ресурса
+        DELETE запрос — удалить ресурс
         
           Копировать в тест:
-            from endpoints.user_endpoints import USER_DELETE
-            
             response = self.api.delete(USER_DELETE.format(user_id=1))
-            assert response.status_code in [200, 204]
+            assert response.status_code in [200, 204], f"Ошибка: статус {response.status_code}"
+            self.logger.info(f"✅ Пользователь удалён")
         
-          Что можно поменять:
-            endpoint — путь к ресурсу (берём из папки endpoints/)
+          Источники эндпоинтов:
+            - USER_DELETE = "/users/{user_id}" (из endpoints/user_endpoints.py)
         """
-        return self.client.delete(endpoint, **kwargs)
+        self.logger.info(f"  DELETE {endpoint}")
+        response = self.client.delete(endpoint, **kwargs)
+        self.logger.info(f"  Response status: {response.status_code}")
+        return response
     
-    def patch(self, endpoint: str, **kwargs):
+    def patch(self, endpoint: str, json: dict = None, **kwargs):
         """
         PATCH запрос — частичное обновление ресурса
         
           Копировать в тест:
-            from endpoints.user_endpoints import USER_UPDATE
-            
-            patch_data = {"email": "new@mail.com"}
+            patch_data = {"email": "new@example.com"}
             response = self.api.patch(USER_UPDATE.format(user_id=1), json=patch_data)
-        
-          Что можно поменять:
-            endpoint — путь к ресурсу (берём из папки endpoints/)
+            assert response.status_code == 200, f"Ошибка: статус {response.status_code}"
+            self.logger.info(f"✅ Пользователь обновлён (частично)")
         """
-        return self.client.patch(endpoint, **kwargs)
+        self.logger.info(f"  PATCH {endpoint}")
+        response = self.client.patch(endpoint, json=json, **kwargs)
+        self.logger.info(f"  Response status: {response.status_code}")
+        return response
+    
+    # ============================================================
+    # РАБОТА С ЗАГОЛОВКАМИ
+    # ============================================================
     
     def add_header(self, key: str, value: str):
         """
-        Добавить заголовок ко всем последующим запросам
+        Добавить заголовок ко всем запросам (для авторизации)
         
           Копировать в тест:
-            # Получаем токен
-            response = self.api.post(AUTH_LOGIN, json={"username": "user", "password": "pass"})
-            token = response.json()["access_token"]
-            
-            # Добавляем токен в заголовки
             self.api.add_header("Authorization", f"Bearer {token}")
-        
-          Что можно поменять:
-            key — название заголовка (str)
-            value — значение заголовка (str)
         """
         self.client.add_header(key, value)
+        self.logger.info(f"  Добавлен заголовок: {key}: {value}")
     
     def clear_headers(self):
         """
@@ -149,3 +130,4 @@ class APISteps:
             self.api.clear_headers()
         """
         self.client.clear_headers()
+        self.logger.info("  Заголовки очищены")
