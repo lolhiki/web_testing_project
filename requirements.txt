@@ -1,0 +1,15 @@
+pytest==8.4.2
+playwright==1.40.0
+pytest-playwright==0.4.4
+requests==2.31.0
+python-dotenv==1.0.0
+pytest-html==4.1.1
+pytest-xdist==3.5.0
+
+'''
+# Установка всех зависимостей
+pip install -r requirements.txt
+
+# Установка браузеров Playwright
+playwright install chromium
+'''

@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Виртуальное окружение
+venv/
+env/
+.venv/
+ENV/
+
+# Результаты тестов
+results/
+*.log
+*.html
+*.json
+*.xml
+
+# Playwright браузеры
+playwright-browsers/
+.ms-playwright/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Файлы с секретами
+.env
+.secrets
+
+# Временные файлы
+*.tmp
+*.bak
+*.orig
+
+# Отчёты
+report.html
+assets/
